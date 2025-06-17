@@ -1,57 +1,66 @@
-﻿// LinkedIn Learning Course .NET Programming with C# by Joe Marini
-// Solution for the Files Programming Challenge
+﻿// variables to store number of Microsoft file types
+int wordType = 0;
+int excelType = 0;
+int powerPointType = 0;
+// variable to store total number of files
+int totalFiles;
 
-// the directory we want to enumerate and results file name
-const string folder = "FileCollection";
-const string resultsfile = "results.txt";
+// variables to store the file size of each Microsoft file types
+long wordSize = 0;
+long excelSize = 0;
+long powerPointSize = 0;
+// total size
+long totalSize;
 
-// Variables to hold the results
-long XLSCount = 0, DOCCount = 0, PPTCount = 0;
-long XLSSize = 0, DOCSize = 0, PPTSize = 0;
-long totalfiles = 0;
-long totalsize = 0;
+// get the current path of this directory
+string curPath = Directory.GetCurrentDirectory();
 
-bool IsOfficeFile(string filename) {
-    // if the file ends with a known office suffix, return true
-    if (filename.EndsWith(".xlsx") || filename.EndsWith(".docx")
-        || filename.EndsWith(".pptx"))
-        return true;
-    return false;
-}
+// get the FileCollection directory
+string fileCollPath = Path.Combine(curPath, "FileCollection");
 
-// create a DirectoryInfo for the given folder
-DirectoryInfo di = new DirectoryInfo(folder);
-
-foreach (FileInfo fi in di.EnumerateFiles()) {
-    // Is this an Office file? (XLSX, DOCX, PPTX)
-    if (IsOfficeFile(fi.Name)) {
-        totalfiles++;
-        totalsize += fi.Length;
-        if (fi.Name.EndsWith(".xlsx")) {
-            XLSCount++;
-            XLSSize += fi.Length;
+// enumerate each file in the FileCollection directory
+List<string> thefiles = new List<string>(Directory.EnumerateFiles(fileCollPath));
+foreach (string file in thefiles)
+{
+    // get the file info for each file
+    FileInfo fileInfo = new FileInfo(file);
+    if (fileInfo.Exists)
+    {
+        // check which type of file (word, excel, or ppt)
+        if (fileInfo.Extension == ".docx")
+        {
+            wordType++;
+            wordSize += fileInfo.Length;
         }
-        if (fi.Name.EndsWith(".docx")) {
-            DOCCount++;
-            DOCSize += fi.Length;
+        else if (fileInfo.Extension == ".xlsx")
+        {
+            excelType++;
+            excelSize += fileInfo.Length;
         }
-        if (fi.Name.EndsWith(".pptx")) {
-            PPTCount++;
-            PPTSize += fi.Length;
+        else if (fileInfo.Extension == ".pptx")
+        {
+            powerPointType++;
+            powerPointSize += fileInfo.Length;
+        }
+        else
+        {
+            continue;
         }
     }
 }
 
-// Output the results
-using (StreamWriter sw = File.CreateText(resultsfile)) {
-    sw.WriteLine("~~~~ Results ~~~~");
-    sw.WriteLine($"Total Files: {totalfiles}");
-    sw.WriteLine($"Excel Count: {XLSCount}");
-    sw.WriteLine($"Word Count: {DOCCount}");
-    sw.WriteLine($"PowerPoint Count: {PPTCount}");
-    sw.WriteLine("----");
-    sw.WriteLine($"Total Size: {totalsize:N0}");
-    sw.WriteLine($"Excel Size: {XLSSize:N0}");
-    sw.WriteLine($"Word Size: {DOCSize:N0}");
-    sw.WriteLine($"PowerPoint Size: {PPTSize:N0}");
-}
+// calaculate the totals
+totalFiles = wordType + excelType + powerPointType;
+totalSize = wordSize + excelSize + powerPointSize;
+
+// display the results
+Console.WriteLine("--- Results ---");
+Console.WriteLine($"Total Files: {totalFiles}");
+Console.WriteLine($"Word Count: {wordType}");
+Console.WriteLine($"Excel Count: {excelType}");
+Console.WriteLine($"PowerPoint Count: {powerPointType}");
+Console.WriteLine("---");
+Console.WriteLine($"Total Size: {totalSize:N0}");
+Console.WriteLine($"Word Size: {wordSize:N0}");
+Console.WriteLine($"Excel Size: {excelSize:N0}");
+Console.WriteLine($"PowerPoint Size: {powerPointSize:N0}");
